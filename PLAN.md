@@ -65,7 +65,7 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: `swift test --filter StatusLine`, cobrindo `settings.json` com e sem `statusLine`, com campos extras e a restauração. Mais `echo '<json>' | statusline.sh` com `time`. Nada toca no seu `settings.json` real.
   - Arquivos: `Sources/AgentBarCore/StatusLineInstaller/StatusLineScript.swift` (script embutido), `StatusLineInstaller.swift`, `Tests/AgentBarCoreTests/StatusLineInstallerTests.swift`, fixtures `settings*.json`
 
-- [ ] **T4: Sessões vivas**
+- [x] **T4: Sessões vivas**
   - Aceite: lê `sessions/*.json`, mapeia `sessionId` para pid, cwd e status, marca como viva se o PID existe e ignora arquivos ilegíveis.
   - Verificar: `swift test --filter Session`
   - Arquivos: `Sources/AgentBarCore/Sessions/SessionRegistry.swift`, `Tests/AgentBarCoreTests/SessionRegistryTests.swift`, fixtures `sessions/`
