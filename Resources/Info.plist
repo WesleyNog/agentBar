@@ -10,6 +10,11 @@
 	<string>AgentBar</string>
 	<key>CFBundleIdentifier</key>
 	<string>io.github.agentbar.AgentBar</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>pt-BR</string>
+	</array>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

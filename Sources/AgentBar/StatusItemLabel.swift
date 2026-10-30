@@ -3,13 +3,16 @@ import SwiftUI
 
 /// Rótulo da barra de menus: sessão (5h) em cima e semana (7d) embaixo, no estilo do CPU/MEM.
 struct StatusItemLabel: View {
-    let session: Double?
-    let week: Double?
+    let store: AgentBarStore
 
     var body: some View {
-        VStack(alignment: .leading, spacing: -1) {
-            row(title: "5h", percentage: session)
-            row(title: "7d", percentage: week)
+        // A cada minuto, para uma janela que resetou voltar a 0% mesmo sem leitura nova.
+        TimelineView(.everyMinute) { context in
+            let limits = store.snapshot.rateLimits?.limits
+            VStack(alignment: .leading, spacing: -1) {
+                row(title: "5h", percentage: limits?.fiveHour?.effectivePercentage(now: context.date))
+                row(title: "7d", percentage: limits?.sevenDay?.effectivePercentage(now: context.date))
+            }
         }
         .font(.system(size: 9.5, weight: .medium).monospacedDigit())
         .padding(.horizontal, 5)
@@ -19,20 +22,26 @@ struct StatusItemLabel: View {
 
     private func row(title: String, percentage: Double?) -> some View {
         HStack(spacing: 3) {
-            Text(title)
+            Text(verbatim: title)
                 .foregroundStyle(.secondary)
-            Text(PercentFormat.short(percentage))
-                .foregroundStyle(color(for: percentage))
+            Text(verbatim: PercentFormat.short(percentage))
+                .foregroundStyle(percentage.map { UsageLevel(percentage: $0).color } ?? .secondary)
                 .frame(minWidth: 26, alignment: .trailing)
         }
     }
+}
 
-    private func color(for percentage: Double?) -> Color {
-        guard let percentage else { return .secondary }
-        switch UsageLevel(percentage: percentage) {
-        case .normal: return .primary
-        case .warning: return .orange
-        case .critical: return .red
+extension UsageLevel {
+    var color: Color {
+        switch self {
+        case .normal: .primary
+        case .warning: .orange
+        case .critical: .red
         }
+    }
+
+    /// Cor da barra de progresso no popover, onde `.primary` ficaria apagado demais.
+    var tint: Color {
+        self == .normal ? .accentColor : color
     }
 }

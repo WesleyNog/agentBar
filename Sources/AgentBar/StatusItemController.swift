@@ -1,22 +1,37 @@
+import AgentBarCore
 import AppKit
 import SwiftUI
 
 /// Item na barra de menus: rótulo de duas linhas em SwiftUI e popover ao clicar.
 @MainActor
-final class StatusItemController: NSObject {
+final class StatusItemController: NSObject, NSPopoverDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let popover = NSPopover()
-    private let labelView = ClickThroughHostingView(rootView: StatusItemLabel(session: 27, week: 45))
+    private let popoverState = PopoverState()
+    private let labelView: ClickThroughHostingView<StatusItemLabel>
+    var openSettings: () -> Void = {}
 
-    override init() {
+    init(store: AgentBarStore) {
+        labelView = ClickThroughHostingView(rootView: StatusItemLabel(store: store))
         super.init()
 
+        let actions = PopoverActions(
+            openSettings: { [weak self] in
+                self?.popover.performClose(nil)
+                self?.openSettings()
+            },
+            quit: { NSApp.terminate(nil) }
+        )
+        let content = NSHostingController(rootView: PopoverView(store: store, state: popoverState, actions: actions))
+        content.sizingOptions = .preferredContentSize
+        popover.contentViewController = content
         popover.behavior = .transient
-        popover.contentViewController = NSHostingController(rootView: PopoverView())
+        popover.delegate = self
 
         guard let button = statusItem.button else { return }
         button.target = self
         button.action = #selector(togglePopover(_:))
+        button.setAccessibilityLabel("AgentBar")
 
         labelView.translatesAutoresizingMaskIntoConstraints = false
         button.addSubview(labelView)
@@ -26,6 +41,7 @@ final class StatusItemController: NSObject {
             labelView.topAnchor.constraint(equalTo: button.topAnchor),
             labelView.bottomAnchor.constraint(equalTo: button.bottomAnchor),
         ])
+        // As porcentagens têm largura mínima fixa, então o item não muda de tamanho.
         statusItem.length = labelView.fittingSize.width
     }
 
@@ -37,6 +53,11 @@ final class StatusItemController: NSObject {
             NSApp.activate()
             popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
         }
+    }
+
+    func popoverDidClose(_ notification: Notification) {
+        // Ao reabrir, começa sempre pela lista.
+        popoverState.selectedRunID = nil
     }
 }
 

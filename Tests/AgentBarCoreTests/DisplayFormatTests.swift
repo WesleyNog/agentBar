@@ -32,6 +32,18 @@ struct DisplayFormatTests {
     }
 
     @Test(arguments: [
+        (0.0, "<1m"),
+        (59, "<1m"),
+        (60, "1m"),
+        (12_900, "3h 35m"),
+        (129_600, "1d 12h"),
+        (-30, "<1m"),
+    ])
+    func contagemRegressiva(seconds: Double, expected: String) {
+        #expect(DisplayFormat.countdown(seconds) == expected)
+    }
+
+    @Test(arguments: [
         ("claude-opus-5-5", "Opus 5.5"),
         ("claude-fable-5-1", "Fable 5.1"),
         ("claude-sonnet-4-5-20250929", "Sonnet 4.5"),

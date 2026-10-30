@@ -22,6 +22,17 @@ public enum DisplayFormat {
         return "\(seconds)s"
     }
 
+    /// Tempo até um reset, com as duas maiores unidades: `1d 12h`, `3h 35m`, `12m`, `<1m`.
+    public static func countdown(_ interval: TimeInterval) -> String {
+        let minutes = max(0, Int(interval / 60))
+        let days = minutes / 1440
+        let hours = minutes % 1440 / 60
+        if days > 0 { return "\(days)d \(hours)h" }
+        if hours > 0 { return "\(hours)h \(minutes % 60)m" }
+        if minutes > 0 { return "\(minutes)m" }
+        return "<1m"
+    }
+
     /// `claude-opus-5-5` → `Opus 5.5`. Formatos desconhecidos voltam como vieram.
     public static func modelName(_ model: String) -> String {
         var parts = model.split(separator: "-").map(String.init)

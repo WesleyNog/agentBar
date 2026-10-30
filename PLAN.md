@@ -99,7 +99,7 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: `swift test --filter Store`, numa pasta temporária: criar um arquivo e ver o estado mudar.
   - Arquivos: `Sources/AgentBarCore/Store/AgentBarStore.swift`, `FileWatcher.swift`, `Tests/AgentBarCoreTests/StoreTests.swift`
 
-- [ ] **T9: Barra e seção de uso**
+- [x] **T9: Barra e seção de uso**
   - Aceite:
     - O rótulo de duas linhas usa dados reais, com cor por faixa e `--` quando não há dados.
     - O popover mostra sessão e semana (barra, %, reset, "atualizado há").
@@ -108,7 +108,7 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: app rodando, capturas comparadas com o esboço da spec e conferência com o sistema em inglês.
   - Arquivos: `Sources/AgentBar/StatusItemLabel.swift`, `PopoverView.swift`, `UsageSection.swift`, `Resources/Localizable.xcstrings`
 
-- [ ] **T10: Workflows na interface**
+- [x] **T10: Workflows na interface**
   - Aceite: a lista mostra primeiro os que estão rodando e depois os concluídos e interrompidos das últimas 24 h, com nome, projeto, tempo, agentes e tokens. O detalhe mostra a descrição, as fases com progresso e, em cada agente, rótulo, modelo, tokens, tempo e status.
   - Verificar: app rodando durante um workflow real, comparando com o painel do Claude Code.
   - Arquivos: `Sources/AgentBar/WorkflowList.swift`, `WorkflowDetail.swift`, `Resources/Localizable.xcstrings`
