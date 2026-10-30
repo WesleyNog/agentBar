@@ -90,7 +90,7 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: rodar nesta máquina e comparar com o `/usage` e com o painel de workflows.
   - Arquivos: `Sources/agentbar-dump/main.swift`
 
-- [ ] **T8: Store e monitoramento de arquivos**
+- [x] **T8: Store e monitoramento de arquivos**
   - Aceite:
     - `AgentBarStore` (`@Observable`, `@MainActor`) junta limites, sessões e workflows.
     - FSEvents vigia `~/.claude/agentbar` e `~/.claude/projects`, com um timer de 5 s como reserva.
