@@ -185,7 +185,8 @@ public final class WorkflowScanner {
         }
 
         let script = scriptInfo(at: location)
-        let startedAt = FileInfo.creationDate(of: location.journal) ?? agents.compactMap(\.startedAt).min()
+        // O journal nasce no lançamento; o primeiro agente cobre o caso de o arquivo ter sido copiado ou recriado.
+        let startedAt = ([FileInfo.creationDate(of: location.journal)] + agents.map(\.startedAt)).compactMap { $0 }.min()
         let endedAt = isAlive ? nil : (agents.compactMap(\.lastActivityAt).max() ?? FileInfo.modificationDate(of: location.journal))
 
         return WorkflowRun(

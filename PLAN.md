@@ -85,7 +85,7 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: `swift test --filter AgentTranscript`, mais a comparação manual com o painel de workflows numa execução real.
   - Arquivos: `Sources/AgentBarCore/Workflows/AgentTranscriptReader.swift`, `IncrementalLineReader.swift`, `Tests/AgentBarCoreTests/AgentTranscriptTests.swift`, fixtures `agent-*.jsonl`
 
-- [ ] **T7: Ferramenta de diagnóstico `agentbar-dump`** · checkpoint B
+- [x] **T7: Ferramenta de diagnóstico `agentbar-dump`** · checkpoint B
   - Aceite: `swift run agentbar-dump` imprime limites, sessões vivas e workflows com agentes, em texto ou com `--json`. Usa só o Core.
   - Verificar: rodar nesta máquina e comparar com o `/usage` e com o painel de workflows.
   - Arquivos: `Sources/agentbar-dump/main.swift`
