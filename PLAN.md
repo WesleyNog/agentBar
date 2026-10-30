@@ -51,7 +51,7 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: `swift build && swift test && ./scripts/bundle.sh && open build/AgentBar.app`, mais uma captura de tela da barra.
   - Arquivos: `Package.swift`, `.gitignore`, `Resources/Info.plist`, `scripts/bundle.sh`, `Sources/AgentBar/AgentBarApp.swift`, `Sources/AgentBar/StatusItemController.swift`
 
-- [ ] **T2: Leitura dos limites de uso**
+- [x] **T2: Leitura dos limites de uso**
   - Aceite: `RateLimits` decodifica o JSON salvo pelo status line. Reset já passado vira 0%. Arquivo ausente ou inválido retorna `nil` sem travar. O "atualizado há" vem do mtime do arquivo.
   - Verificar: `swift test --filter RateLimits`
   - Arquivos: `Sources/AgentBarCore/RateLimits/RateLimits.swift`, `RateLimitsReader.swift`, `Tests/AgentBarCoreTests/RateLimitsTests.swift`, fixtures `rate_limits*.json`
