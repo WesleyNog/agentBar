@@ -27,7 +27,10 @@ public struct ClaudePaths: Sendable, Equatable {
     // MARK: Pasta do AgentBar
 
     public var agentBarDirectory: URL { root.appendingPathComponent("agentbar", isDirectory: true) }
-    public var rateLimitsFile: URL { agentBarDirectory.appendingPathComponent("rate_limits.json") }
+    /// Um arquivo de limites por sessão do Claude Code.
+    public var rateLimitsDirectory: URL { agentBarDirectory.appendingPathComponent("rate_limits", isDirectory: true) }
+    /// Arquivo único das primeiras versões do script, lido enquanto existir.
+    public var legacyRateLimitsFile: URL { agentBarDirectory.appendingPathComponent("rate_limits.json") }
     public var statusLineScript: URL { agentBarDirectory.appendingPathComponent("statusline.sh") }
     public var previousStatusLineFile: URL { agentBarDirectory.appendingPathComponent("previous-statusline.json") }
     public var backupsDirectory: URL { agentBarDirectory.appendingPathComponent("backups", isDirectory: true) }

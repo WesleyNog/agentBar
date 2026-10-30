@@ -155,7 +155,7 @@ struct StatusLineInstallerTests {
 
 @Suite("StatusLineScript")
 struct StatusLineScriptTests {
-    private static let input = #"{"model":{"id":"claude-opus-5-5"},"rate_limits":{"five_hour":{"used_percentage":27,"resets_at":1793339400}}}"#
+    private static let input = #"{"session_id":"sessao-1","model":{"id":"claude-opus-5-5"},"rate_limits":{"five_hour":{"used_percentage":27,"resets_at":1793339400}}}"#
 
     /// Instala o script numa pasta temporária e o executa como o Claude Code faria.
     private func run(previousCommand: String?, input: String = Self.input, in dir: TempDirectory) throws -> String {
@@ -188,7 +188,7 @@ struct StatusLineScriptTests {
         let output = try run(previousCommand: "plutil -extract model.id raw -o - -", in: dir)
 
         #expect(output.trimmingCharacters(in: .newlines) == "claude-opus-5-5")
-        let saved = try #require(RateLimitsReader.decode(Data(try dir.read("agentbar/rate_limits.json").utf8)))
+        let saved = try #require(RateLimitsReader.decode(Data(try dir.read("agentbar/rate_limits/sessao-1.json").utf8)))
         #expect(saved.fiveHour?.usedPercentage == 27)
     }
 
@@ -199,20 +199,31 @@ struct StatusLineScriptTests {
         let output = try run(previousCommand: nil, in: dir)
 
         #expect(output.isEmpty)
-        #expect(dir.exists("agentbar/rate_limits.json"))
+        #expect(dir.exists("agentbar/rate_limits/sessao-1.json"))
     }
 
     @Test func entradaSemLimitesMantemOArquivoAnterior() throws {
         let dir = try TempDirectory()
         defer { dir.remove() }
         _ = try run(previousCommand: nil, in: dir)
-        let before = try dir.read("agentbar/rate_limits.json")
+        let before = try dir.read("agentbar/rate_limits/sessao-1.json")
 
-        _ = try run(previousCommand: nil, input: #"{"model":{"id":"x"}}"#, in: dir)
+        _ = try run(previousCommand: nil, input: #"{"session_id":"sessao-1","model":{"id":"x"}}"#, in: dir)
 
-        #expect(try dir.read("agentbar/rate_limits.json") == before)
-        let leftovers = try FileManager.default.contentsOfDirectory(atPath: dir.url.appendingPathComponent("agentbar").path)
-            .filter { $0.hasPrefix(".rate_limits") }
+        #expect(try dir.read("agentbar/rate_limits/sessao-1.json") == before)
+        let leftovers = try FileManager.default.contentsOfDirectory(atPath: dir.url.appendingPathComponent("agentbar/rate_limits").path)
+            .filter { $0.hasPrefix(".tmp") }
         #expect(leftovers.isEmpty)
+    }
+
+    @Test func semSessionIdUsaUmNomeFixoEApagaOArquivoAntigo() throws {
+        let dir = try TempDirectory()
+        defer { dir.remove() }
+        try dir.write("{}", to: "agentbar/rate_limits.json")
+
+        _ = try run(previousCommand: nil, input: #"{"rate_limits":{"seven_day":{"used_percentage":5,"resets_at":1793458800}}}"#, in: dir)
+
+        #expect(dir.exists("agentbar/rate_limits/sem-sessao.json"))
+        #expect(!dir.exists("agentbar/rate_limits.json"))
     }
 }

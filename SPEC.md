@@ -58,7 +58,8 @@ Status de um workflow:
 ## Integração com o status line
 
 - O app instala `~/.claude/agentbar/statusline.sh` e aponta `statusLine.command` do `~/.claude/settings.json` para ele.
-- O script salva `rate_limits` em `~/.claude/agentbar/rate_limits.json` com escrita atômica. Depois repassa o mesmo stdin ao comando de status line que existia antes e imprime a saída dele, para que o status line atual continue igual.
+- O script salva `rate_limits` em `~/.claude/agentbar/rate_limits/<session_id>.json` com escrita atômica, um arquivo por sessão. Depois repassa o mesmo stdin ao comando de status line que existia antes e imprime a saída dele, para que o status line atual continue igual.
+- Cada sessão aberta manda os limites da sua última resposta, então uma sessão parada reenvia números antigos. O app junta os arquivos: vence a janela com reset mais recente e, dentro dela, o maior uso (o uso só cresce até o reset).
 - Antes de editar o `settings.json`, o app faz backup. "Desconectar" restaura o comando anterior.
 - Se a pessoa usa `CLAUDE_CONFIG_DIR`, dá para escolher a pasta nos Ajustes.
 - O script precisa rodar em menos de 50 ms para não atrasar o Claude Code.

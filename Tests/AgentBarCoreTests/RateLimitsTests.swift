@@ -46,6 +46,59 @@ struct RateLimitsTests {
         #expect(snapshot.updatedAt == modified)
     }
 
+    @Test func juntaSessoesFicandoComOMaiorUsoDaJanelaMaisNova() {
+        let week = Date(timeIntervalSince1970: 1_793_458_800)
+        let fiveHours = Date(timeIntervalSince1970: 1_793_379_600)
+        let previousFiveHours = fiveHours.addingTimeInterval(-5 * 3600)
+        // Sessão parada: semana com número antigo e uma janela de 5h que já passou.
+        let stale = RateLimitsSnapshot(
+            limits: RateLimits(
+                fiveHour: RateLimitWindow(usedPercentage: 90, resetsAt: previousFiveHours),
+                sevenDay: RateLimitWindow(usedPercentage: 46, resetsAt: week)
+            ),
+            updatedAt: Date(timeIntervalSince1970: 2_000)
+        )
+        let active = RateLimitsSnapshot(
+            limits: RateLimits(
+                fiveHour: RateLimitWindow(usedPercentage: 13, resetsAt: fiveHours),
+                sevenDay: RateLimitWindow(usedPercentage: 48, resetsAt: week)
+            ),
+            updatedAt: Date(timeIntervalSince1970: 1_000)
+        )
+        let weekOnly = RateLimitsSnapshot(
+            limits: RateLimits(fiveHour: nil, sevenDay: RateLimitWindow(usedPercentage: 47, resetsAt: week.addingTimeInterval(60))),
+            updatedAt: Date(timeIntervalSince1970: 3_000)
+        )
+
+        let merged = RateLimitsReader.merge([stale, active, weekOnly])
+
+        #expect(merged?.limits.fiveHour?.usedPercentage == 13)
+        #expect(merged?.limits.sevenDay?.usedPercentage == 48)
+        // "Atualizado em" é de quem forneceu os números escolhidos, não da sessão parada.
+        #expect(merged?.updatedAt == Date(timeIntervalSince1970: 1_000))
+    }
+
+    @Test func juntarNadaViraNil() {
+        #expect(RateLimitsReader.merge([]) == nil)
+    }
+
+    @Test func leAPastaDeSessoesEOArquivoAntigo() throws {
+        let dir = try TempDirectory()
+        defer { dir.remove() }
+        try dir.write(#"{"seven_day":{"used_percentage":46,"resets_at":1793458800}}"#, to: "rate_limits/parada.json")
+        try dir.write(#"{"five_hour":{"used_percentage":13,"resets_at":1793379600},"seven_day":{"used_percentage":48,"resets_at":1793458800}}"#, to: "rate_limits/ativa.json")
+        try dir.write("lixo", to: "rate_limits/quebrado.json")
+        try dir.write(#"{"five_hour":{"used_percentage":2,"resets_at":1793379600}}"#, to: "rate_limits.json")
+
+        let merged = RateLimitsReader.readMerged(
+            directory: dir.url.appendingPathComponent("rate_limits"),
+            legacyFile: dir.url.appendingPathComponent("rate_limits.json")
+        )
+
+        #expect(merged?.limits.fiveHour?.usedPercentage == 13)
+        #expect(merged?.limits.sevenDay?.usedPercentage == 48)
+    }
+
     @Test func arquivoAusenteViraNil() throws {
         let dir = try TempDirectory()
         defer { dir.remove() }

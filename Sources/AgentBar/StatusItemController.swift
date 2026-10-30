@@ -50,7 +50,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             popover.performClose(sender)
         } else {
             // Sem ativar o app, o popover não recebe foco e não fecha ao clicar fora.
-            NSApp.activate()
+            NSApp.activateFromMenuBar()
             popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
         }
     }
@@ -58,6 +58,15 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     func popoverDidClose(_ notification: Notification) {
         // Ao reabrir, começa sempre pela lista.
         popoverState.selectedRunID = nil
+    }
+}
+
+extension NSApplication {
+    /// Traz o app para a frente a partir de um clique no item da barra de menus.
+    /// O `activate()` cooperativo (macOS 14+) é recusado nesse caso: o clique na barra
+    /// não conta como interação com o app, e o popover ficaria sem foco.
+    func activateFromMenuBar() {
+        activate(ignoringOtherApps: true)
     }
 }
 

@@ -248,7 +248,7 @@ final class SettingsWindowController {
             self.window = window
         }
         model.refreshLoginItemStatus()
-        NSApp.activate()
+        NSApp.activateFromMenuBar()
         window?.makeKeyAndOrderFront(nil)
     }
 }

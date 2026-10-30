@@ -10,10 +10,27 @@ enum StatusLineScript {
     dir="$(cd "$(dirname "$0")" && pwd)"
     input=$(cat)
 
+    # Um arquivo por sessão: sessões paradas reenviam números antigos, e o AgentBar
+    # escolhe os mais recentes ao juntar todos.
+    # O status line roda a cada resposta: o que der para fazer sem abrir processo, é feito no bash.
+    limits="$dir/rate_limits"
+    [ -d "$limits" ] || mkdir -p "$limits"
+    session="sem-sessao"
+    if [[ $input =~ \"session_id\"[[:space:]]*:[[:space:]]*\"([A-Za-z0-9_-]+)\" ]]; then
+        session="${BASH_REMATCH[1]}"
+    fi
+    target="$limits/$session.json"
+
+    # Sessão nova: limpa as que estão sem notícia há mais de 8 dias e o arquivo único das versões anteriores.
+    if [ ! -e "$target" ]; then
+        find "$limits" -name '*.json' -mtime +8 -delete 2>/dev/null
+        rm -f "$dir/rate_limits.json"
+    fi
+
     # Escrita atômica: arquivo temporário na mesma pasta e depois mv.
-    if tmp=$(mktemp "$dir/.rate_limits.XXXXXX" 2>/dev/null); then
+    if tmp=$(mktemp "$limits/.tmp.XXXXXX" 2>/dev/null); then
         if printf '%s' "$input" | plutil -extract rate_limits json -o "$tmp" - 2>/dev/null; then
-            mv -f "$tmp" "$dir/rate_limits.json"
+            mv -f "$tmp" "$target"
         else
             rm -f "$tmp"
         fi

@@ -9,7 +9,7 @@ Uso: agentbar-dump [opções]
 
   --json                 saída em JSON
   --claude-dir <pasta>   pasta do Claude Code (padrão: CLAUDE_CONFIG_DIR ou ~/.claude)
-  --rate-limits <arq>    lê os limites deste arquivo em vez do salvo pelo AgentBar
+  --rate-limits <arq>    lê os limites só deste arquivo em vez dos salvos pelo AgentBar
   --hours <n>            janela dos workflows que já terminaram (padrão: 24)
   -h, --help             esta ajuda
 """
@@ -58,8 +58,12 @@ func fail(_ message: String) -> Never {
 
 let options = parseOptions(Array(CommandLine.arguments.dropFirst()))
 let now = Date()
-let rateLimitsFile = options.rateLimitsFile ?? options.paths.rateLimitsFile
-let rateLimits = RateLimitsReader.read(at: rateLimitsFile)
+let rateLimitsSource = (options.rateLimitsFile ?? options.paths.rateLimitsDirectory).path
+let rateLimits = if let file = options.rateLimitsFile {
+    RateLimitsReader.read(at: file)
+} else {
+    RateLimitsReader.readMerged(directory: options.paths.rateLimitsDirectory, legacyFile: options.paths.legacyRateLimitsFile)
+}
 let statusLine = Result { try StatusLineInstaller(paths: options.paths).state() }
 let sessions = SessionRegistry.load(from: options.paths.sessionsDirectory)
 let runs = WorkflowScanner(paths: options.paths, recentWindow: options.hours * 3600).scan(sessions: sessions, now: now)
@@ -128,7 +132,7 @@ func printText() {
         print(windowLine("Sessão (5h)", rateLimits.limits.fiveHour))
         print(windowLine("Semana (7d)", rateLimits.limits.sevenDay))
     } else {
-        print("Limites: sem dados em \(rateLimitsFile.path)")
+        print("Limites: sem dados em \(rateLimitsSource)")
     }
     switch statusLine {
     case .success(.connected): print("  status line: conectado ao AgentBar")
@@ -198,7 +202,7 @@ struct Dump: Encodable {
     }
 
     let claudeDirectory: String
-    let rateLimitsFile: String
+    let rateLimitsSource: String
     let rateLimitsUpdatedAt: Date?
     let fiveHour, sevenDay: Window?
     let statusLine: String
@@ -218,7 +222,7 @@ func printJSON() throws {
     }
     let dump = Dump(
         claudeDirectory: options.paths.root.path,
-        rateLimitsFile: rateLimitsFile.path,
+        rateLimitsSource: rateLimitsSource,
         rateLimitsUpdatedAt: rateLimits?.updatedAt,
         fiveHour: window(rateLimits?.limits.fiveHour),
         sevenDay: window(rateLimits?.limits.sevenDay),

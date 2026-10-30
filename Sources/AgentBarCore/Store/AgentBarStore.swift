@@ -35,7 +35,7 @@ actor SnapshotReader {
     func read(now: Date) -> AgentBarSnapshot {
         let sessions = SessionRegistry.load(from: paths.sessionsDirectory)
         return AgentBarSnapshot(
-            rateLimits: RateLimitsReader.read(at: paths.rateLimitsFile),
+            rateLimits: RateLimitsReader.readMerged(directory: paths.rateLimitsDirectory, legacyFile: paths.legacyRateLimitsFile),
             statusLine: try? StatusLineInstaller(paths: paths).state(),
             sessions: sessions,
             workflows: scanner.scan(sessions: sessions, now: now)
