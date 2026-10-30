@@ -139,8 +139,7 @@ Tests/
   AgentBarCoreTests/
     Fixtures/              → arquivos sintéticos imitando o formato do Claude Code
 Resources/
-  Info.plist
-  statusline.sh
+  Info.plist               → o statusline.sh fica embutido no código (StatusLineScript.swift)
 scripts/
   bundle.sh
   release.sh

@@ -56,14 +56,14 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: `swift test --filter RateLimits`
   - Arquivos: `Sources/AgentBarCore/RateLimits/RateLimits.swift`, `RateLimitsReader.swift`, `Tests/AgentBarCoreTests/RateLimitsTests.swift`, fixtures `rate_limits*.json`
 
-- [ ] **T3: Script de status line e instalador**
+- [x] **T3: Script de status line e instalador**
   - Aceite:
     - `statusline.sh` salva `rate_limits` com escrita atômica, repassa o stdin ao comando anterior, imprime a saída dele e roda em menos de 50 ms.
     - O instalador faz backup, troca o `statusLine`, guarda o anterior e preserva os outros campos.
     - "Desconectar" restaura o anterior.
     - O instalador detecta o estado: conectado, outro comando ou nenhum.
   - Verificar: `swift test --filter StatusLine`, cobrindo `settings.json` com e sem `statusLine`, com campos extras e a restauração. Mais `echo '<json>' | statusline.sh` com `time`. Nada toca no seu `settings.json` real.
-  - Arquivos: `Resources/statusline.sh`, `Sources/AgentBarCore/StatusLineInstaller/StatusLineInstaller.swift`, `Tests/AgentBarCoreTests/StatusLineInstallerTests.swift`, fixtures `settings*.json`
+  - Arquivos: `Sources/AgentBarCore/StatusLineInstaller/StatusLineScript.swift` (script embutido), `StatusLineInstaller.swift`, `Tests/AgentBarCoreTests/StatusLineInstallerTests.swift`, fixtures `settings*.json`
 
 - [ ] **T4: Sessões vivas**
   - Aceite: lê `sessions/*.json`, mapeia `sessionId` para pid, cwd e status, marca como viva se o PID existe e ignora arquivos ilegíveis.
