@@ -70,7 +70,7 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: `swift test --filter Session`
   - Arquivos: `Sources/AgentBarCore/Sessions/SessionRegistry.swift`, `Tests/AgentBarCoreTests/SessionRegistryTests.swift`, fixtures `sessions/`
 
-- [ ] **T5: Descoberta e estado dos workflows**
+- [x] **T5: Descoberta e estado dos workflows**
   - Aceite:
     - Encontra execuções em `projects/*/*/subagents/workflows/*` que estão rodando ou que mudaram nas últimas 24 h.
     - Lê nome, descrição e fases do `meta` do script.
@@ -80,7 +80,7 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: `swift test --filter Workflow`
   - Arquivos: `Sources/AgentBarCore/Workflows/WorkflowRun.swift`, `WorkflowScanner.swift`, `JournalParser.swift`, `ScriptMetaParser.swift`, `Tests/AgentBarCoreTests/WorkflowTests.swift`
 
-- [ ] **T6: Tokens, modelo e tempo por agente**
+- [x] **T6: Tokens, modelo e tempo por agente**
   - Aceite: um leitor incremental de `agent-*.jsonl` guarda o offset, lê só o que cresceu e aguenta linha incompleta. Dele saem a soma de tokens, o último modelo, início e fim, e o tempo idle. A fórmula de tokens bate com o painel do Claude Code com diferença de até 2%.
   - Verificar: `swift test --filter AgentTranscript`, mais a comparação manual com o painel de workflows numa execução real.
   - Arquivos: `Sources/AgentBarCore/Workflows/AgentTranscriptReader.swift`, `IncrementalLineReader.swift`, `Tests/AgentBarCoreTests/AgentTranscriptTests.swift`, fixtures `agent-*.jsonl`
