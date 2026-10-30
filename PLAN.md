@@ -151,5 +151,5 @@ T2 a T5 são independentes entre si depois do T1.
 - [ ] 6. Sessão fechada mostra "interrompido"
 - [x] 7. Status line anterior preservado — 30/10: `5h:19% | 7d:49%` continua no terminal depois de conectar
 - [x] 8. CPU abaixo de 1% e memória abaixo de 80 MB em repouso — 30/10: 0,2% e 49 MB
-- [ ] 9. Nenhuma chamada de rede
+- [x] 9. Nenhuma chamada de rede — 30/10: `lsof -i` sem nenhum socket aberto pelo AgentBar
 - [ ] 10. Instalação do zero seguindo o README
