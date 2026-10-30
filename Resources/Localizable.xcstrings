@@ -21,12 +21,82 @@
         }
       }
     },
+    "AgentBar %@ · Unofficial project, not affiliated with Anthropic.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AgentBar %@ · Projeto não oficial, sem relação com a Anthropic."
+          }
+        }
+      }
+    },
+    "AgentBar Settings": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes do AgentBar"
+          }
+        }
+      }
+    },
+    "AgentBar reads your usage limits from Claude Code's status line. Connecting installs a small script and points the status line in settings.json to it. The status line you use today keeps working, and settings.json is backed up first.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O AgentBar lê seus limites de uso pelo status line do Claude Code. Conectar instala um script pequeno e aponta o status line do settings.json para ele. O status line que você usa hoje continua funcionando, e o settings.json ganha um backup antes."
+          }
+        }
+      }
+    },
+    "AgentBar will add a status line to %@. A backup of settings.json is saved in %@.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O AgentBar vai adicionar um status line em %1$@. Um backup do settings.json fica em %2$@."
+          }
+        }
+      }
+    },
+    "AgentBar will change the status line in %@. Your current status line (%@) keeps running through AgentBar's script. A backup of settings.json is saved in %@.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O AgentBar vai trocar o status line em %1$@. O status line atual (%2$@) continua rodando pelo script do AgentBar. Um backup do settings.json fica em %3$@."
+          }
+        }
+      }
+    },
+    "AgentBar will put back the status line you had before and remove its script. Your usage limits will stop updating.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O AgentBar vai devolver o status line que você tinha antes e remover o script dele. Os limites de uso vão parar de atualizar."
+          }
+        }
+      }
+    },
     "Agents": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Agentes"
+          }
+        }
+      }
+    },
+    "Allow AgentBar in System Settings › General › Login Items.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permita o AgentBar em Ajustes do Sistema › Geral › Itens de Início."
           }
         }
       }
@@ -41,12 +111,82 @@
         }
       }
     },
+    "Cancel": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        }
+      }
+    },
+    "Choose": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolher"
+          }
+        }
+      }
+    },
+    "Choose the Claude Code folder (usually ~/.claude).": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha a pasta do Claude Code (normalmente ~/.claude)."
+          }
+        }
+      }
+    },
+    "Choose…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolher…"
+          }
+        }
+      }
+    },
+    "Claude Code connection": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conexão com o Claude Code"
+          }
+        }
+      }
+    },
+    "Claude Code folder": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasta do Claude Code"
+          }
+        }
+      }
+    },
     "Completed": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Concluído"
+          }
+        }
+      }
+    },
+    "Connect": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar"
           }
         }
       }
@@ -61,12 +201,52 @@
         }
       }
     },
+    "Connect AgentBar to Claude Code?": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar o AgentBar ao Claude Code?"
+          }
+        }
+      }
+    },
+    "Connected": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectado"
+          }
+        }
+      }
+    },
     "Connect…": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Conectar…"
+          }
+        }
+      }
+    },
+    "Couldn't change Open at login: %@": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível alterar Abrir ao iniciar: %@"
+          }
+        }
+      }
+    },
+    "Couldn't change settings.json: %@": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível alterar o settings.json: %@"
           }
         }
       }
@@ -91,12 +271,62 @@
         }
       }
     },
+    "Current status line: %@": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status line atual: %@"
+          }
+        }
+      }
+    },
+    "Disconnect": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desconectar"
+          }
+        }
+      }
+    },
+    "Disconnect AgentBar from Claude Code?": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desconectar o AgentBar do Claude Code?"
+          }
+        }
+      }
+    },
+    "Disconnect…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desconectar…"
+          }
+        }
+      }
+    },
     "Failed": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Falhou"
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geral"
           }
         }
       }
@@ -127,6 +357,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nenhum workflow nas últimas 24 horas"
+          }
+        }
+      }
+    },
+    "Not connected": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não conectado"
+          }
+        }
+      }
+    },
+    "Open": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir"
+          }
+        }
+      }
+    },
+    "Open at login": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ao iniciar o Mac"
           }
         }
       }
@@ -231,6 +491,16 @@
         }
       }
     },
+    "Use default": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar o padrão"
+          }
+        }
+      }
+    },
     "Waiting for Claude Code. Your limits show up after the next reply in any session.": {
       "localizations": {
         "pt-BR": {
@@ -257,6 +527,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "ocioso há %@"
+          }
+        }
+      }
+    },
+    "settings.json isn't valid JSON, so AgentBar didn't change it.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O settings.json não é um JSON válido, então o AgentBar não mexeu nele."
+          }
+        }
+      }
+    },
+    "settings.json isn't valid JSON. Fix it to connect.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O settings.json não é um JSON válido. Corrija para conectar."
           }
         }
       }

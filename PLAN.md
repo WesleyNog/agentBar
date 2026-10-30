@@ -32,7 +32,7 @@ T2 a T5 são independentes entre si depois do T1.
 |---|---|
 | Rótulo de duas linhas não ficar bom na barra (tamanho, claro/escuro) | T1 é um protótipo só disso. Se `NSHostingView` não ficar bom, o rótulo é desenhado como imagem. |
 | Soma de tokens diferente da que o Claude Code mostra | T6 calibra contra um workflow real antes de fechar. |
-| Estragar o `settings.json` de quem instala | Backup com data e hora, campos desconhecidos preservados e testes só em pastas temporárias. A gravação pode reordenar as chaves do JSON (só cosmético, o conteúdo não muda). |
+| Estragar o `settings.json` de quem instala | Backup com data e hora, campos desconhecidos preservados e testes só em pastas temporárias. A gravação mexe só no trecho do `statusLine`: ordem e formatação do resto ficam iguais (se a edição não conferir, regrava o JSON inteiro). |
 | Transcrições de agentes grandes (2–3 MB cada) | Leitura incremental a partir do último byte lido. Só entram workflows rodando ou das últimas 24 h. |
 | Formato interno do Claude Code mudar | Parser tolerante e `agentbar-dump` para diagnosticar. |
 | Abrir no login não funcionar com app sem assinatura | Testado no T11. Se falhar, a opção fica desativada com explicação. |
@@ -113,7 +113,7 @@ T2 a T5 são independentes entre si depois do T1.
   - Verificar: app rodando durante um workflow real, comparando com o painel do Claude Code.
   - Arquivos: `Sources/AgentBar/WorkflowList.swift`, `WorkflowDetail.swift`, `Resources/Localizable.xcstrings`
 
-- [ ] **T11: Ajustes** · checkpoint C
+- [x] **T11: Ajustes** · checkpoint C
   - Aceite:
     - Conectar e desconectar o status line, com uma confirmação que mostra o que vai mudar.
     - Abrir no login.
