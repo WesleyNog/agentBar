@@ -4,7 +4,7 @@
 enum StatusLineScript {
     static let contents = #"""
     #!/bin/bash
-    # Instalado pelo AgentBar.
+    # Instalado pelo AgentBar (https://github.com/WesleyNog/agentBar).
     # Salva os limites de uso (rate_limits) que o Claude Code envia ao status line
     # e repassa a mesma entrada ao status line que existia antes, se houver.
     dir="$(cd "$(dirname "$0")" && pwd)"

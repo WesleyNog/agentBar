@@ -106,9 +106,15 @@ struct SettingsView: View {
                     .foregroundStyle(.red)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Text("AgentBar \(appVersion) · Unofficial project, not affiliated with Anthropic.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            HStack(alignment: .firstTextBaseline) {
+                Text("AgentBar \(appVersion) · Unofficial project, not affiliated with Anthropic.")
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Link(destination: Self.repository) {
+                    Text(verbatim: "GitHub")
+                }
+            }
+            .font(.caption)
         }
         .padding(20)
         .frame(width: 480)
@@ -220,6 +226,8 @@ struct SettingsView: View {
         }
         return String(localized: "AgentBar will add a status line to \(settings). A backup of settings.json is saved in \(backups).")
     }
+
+    private static let repository = URL(string: "https://github.com/WesleyNog/agentBar")!
 
     private var appVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev"

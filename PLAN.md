@@ -124,7 +124,7 @@ T2 a T5 são independentes entre si depois do T1.
     - Depois de desconectar, o `diff` contra o backup mostra o `settings.json` igual ao original.
   - Arquivos: `Sources/AgentBar/SettingsView.swift`, `LoginItem.swift`
 
-- [ ] **T12: Empacotamento e documentação**
+- [x] **T12: Empacotamento e documentação**
   - Aceite:
     - Ícone do app.
     - `scripts/release.sh` gera `build/AgentBar-<versão>.zip` em release, com assinatura ad-hoc.

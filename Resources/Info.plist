@@ -8,8 +8,10 @@
 	<string>AgentBar</string>
 	<key>CFBundleExecutable</key>
 	<string>AgentBar</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
-	<string>io.github.agentbar.AgentBar</string>
+	<string>io.github.wesleynog.AgentBar</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
@@ -32,6 +34,6 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>MIT License. Projeto não oficial, sem relação com a Anthropic.</string>
+	<string>© 2026 Wesley Nogueira. MIT License. Unofficial project, not affiliated with Anthropic.</string>
 </dict>
 </plist>
