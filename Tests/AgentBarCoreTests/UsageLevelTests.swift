@@ -32,4 +32,10 @@ struct PercentFormatTests {
     @Test func negativoViraZero() {
         #expect(PercentFormat.short(-3) == "0%")
     }
+
+    /// A barra de menus reserva largura até "100%".
+    @Test func acimaDeCemFicaEmCem() {
+        #expect(PercentFormat.short(104.5) == "100%")
+        #expect(PercentFormat.short(.infinity) == "--")
+    }
 }

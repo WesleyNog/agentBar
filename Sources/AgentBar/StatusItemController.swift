@@ -41,7 +41,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             labelView.topAnchor.constraint(equalTo: button.topAnchor),
             labelView.bottomAnchor.constraint(equalTo: button.bottomAnchor),
         ])
-        // As porcentagens têm largura mínima fixa, então o item não muda de tamanho.
+        // As porcentagens reservam a largura de "100%", então o item não muda de tamanho.
         statusItem.length = labelView.fittingSize.width
     }
 

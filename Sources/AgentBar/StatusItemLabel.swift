@@ -24,9 +24,12 @@ struct StatusItemLabel: View {
         HStack(spacing: 3) {
             Text(verbatim: title)
                 .foregroundStyle(.secondary)
-            Text(verbatim: PercentFormat.short(percentage))
-                .foregroundStyle(percentage.map { UsageLevel(percentage: $0).color } ?? .secondary)
-                .frame(minWidth: 26, alignment: .trailing)
+            // O texto mais largo, invisível, fixa a largura: o item não muda de tamanho e "100%" cabe.
+            ZStack(alignment: .trailing) {
+                Text(verbatim: PercentFormat.widest).hidden()
+                Text(verbatim: PercentFormat.short(percentage))
+                    .foregroundStyle(percentage.map { UsageLevel(percentage: $0).color } ?? .secondary)
+            }
         }
     }
 }
