@@ -148,7 +148,7 @@ T2 a T5 são independentes entre si depois do T1.
 - [ ] 3. Workflow aparece e conclui em até 5 s — 30/10: apareceu ao vivo com 59 s de execução; falta cronometrar o início e o fim
 - [x] 4. Tokens por workflow a no máximo 2% do painel — concluídos idênticos; rodando: 436.8k (59 s) contra 442.3k (1m00s) no Claude Code, mesma curva
 - [x] 5. Detalhe de cada agente completo — 30/10: fase, rótulo, modelo, tokens e tempo batendo com o painel
-- [ ] 6. Sessão fechada mostra "interrompido"
+- [ ] 6. Sessão fechada mostra "interrompido"; limite de uso mostra "pausado" e a retomada volta a "rodando" (pausa e retomada conferidas com um workflow real)
 - [x] 7. Status line anterior preservado — 30/10: `5h:19% | 7d:49%` continua no terminal depois de conectar
 - [x] 8. CPU abaixo de 1% e memória abaixo de 80 MB em repouso — 30/10: 0,2% e 49 MB
 - [x] 9. Nenhuma chamada de rede — 30/10: `lsof -i` sem nenhum socket aberto pelo AgentBar

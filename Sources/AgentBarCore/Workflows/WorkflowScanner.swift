@@ -10,7 +10,8 @@ public final class WorkflowScanner {
     /// Por quanto tempo um workflow que terminou continua aparecendo.
     public var recentWindow: TimeInterval
 
-    private var finishedRuns: [String: WorkflowRun] = [:]
+    /// Execuções terminadas, com a data do arquivo final que as gerou.
+    private var finishedRuns: [String: (run: WorkflowRun, finalModified: Date)] = [:]
     private var transcripts: [URL: AgentTranscriptReader] = [:]
     private var scriptMetas: [String: (fileName: String, meta: WorkflowScriptMeta?)] = [:]
     private var projectNames: [URL: String] = [:]
@@ -20,7 +21,7 @@ public final class WorkflowScanner {
         self.recentWindow = recentWindow
     }
 
-    /// Workflows rodando primeiro (mais novo antes), depois os que terminaram (mais recente antes).
+    /// Workflows rodando ou pausados primeiro (mais novo antes), depois os que terminaram (mais recente antes).
     public func scan(sessions: [ClaudeSession], now: Date = .now) -> [WorkflowRun] {
         let liveSessions = Dictionary(
             sessions.filter(\.isAlive).map { ($0.sessionId, $0) },
@@ -76,30 +77,42 @@ public final class WorkflowScanner {
         now: Date,
         usedTranscripts: inout Set<URL>
     ) -> WorkflowRun? {
-        if let cached = finishedRuns[location.runId] {
-            guard isRecent(cached, now: now) else {
-                finishedRuns[location.runId] = nil
-                return nil
+        if let finalModified = FileInfo.modificationDate(of: location.finalFile),
+           !wasResumed(at: location, finalModified: finalModified) {
+            if let cached = finishedRuns[location.runId], cached.finalModified == finalModified {
+                guard isRecent(cached.run, now: now) else {
+                    finishedRuns[location.runId] = nil
+                    return nil
+                }
+                return cached.run
             }
-            return cached
-        }
-
-        if FileInfo.exists(location.finalFile) {
             // Arquivo final antigo nem é aberto.
-            guard let modified = FileInfo.modificationDate(of: location.finalFile),
-                  now.timeIntervalSince(modified) <= recentWindow,
+            guard now.timeIntervalSince(finalModified) <= recentWindow,
                   let run = finishedRun(at: location, liveSession: liveSession),
                   isRecent(run, now: now)
             else { return nil }
-            finishedRuns[location.runId] = run
+            finishedRuns[location.runId] = (run, finalModified)
             return run
         }
+        finishedRuns[location.runId] = nil
 
         if liveSession == nil {
             let lastChange = FileInfo.modificationDate(of: location.journal) ?? FileInfo.modificationDate(of: location.runDirectory)
             if let lastChange, now.timeIntervalSince(lastChange) > recentWindow { return nil }
         }
         return liveRun(at: location, liveSession: liveSession, usedTranscripts: &usedTranscripts)
+    }
+
+    /// Para retomar um workflow, o Claude Code grava o arquivo final (`killed`) e continua no mesmo journal.
+    /// Num workflow que terminou, o journal nunca é gravado depois do arquivo final. Um concluído não é
+    /// retomado, então o status protege contra datas mexidas, como numa cópia da pasta.
+    private func wasResumed(at location: RunLocation, finalModified: Date) -> Bool {
+        guard let journalModified = FileInfo.modificationDate(of: location.journal),
+              journalModified.timeIntervalSince(finalModified) > 1,
+              let data = try? Data(contentsOf: location.finalFile),
+              let file = try? JSONDecoder().decode(FinalWorkflowFile.self, from: data)
+        else { return false }
+        return file.status != "completed"
     }
 
     /// Workflow terminado: tudo vem do arquivo final.
@@ -116,9 +129,10 @@ public final class WorkflowScanner {
 
         let agents: [WorkflowAgent] = file.progress
             .filter { $0.type == "workflow_agent" }
-            .compactMap { entry in
-                guard let id = entry.agentId else { return nil }
-                let agentStart = entry.startedAt.map(Timestamps.fromMilliseconds)
+            .enumerated()
+            .map { position, entry in
+                let id = entry.agentId ?? "index-\(entry.index ?? position)"
+                let agentStart = (entry.startedAt ?? entry.queuedAt).map(Timestamps.fromMilliseconds)
                 let lastProgress = entry.lastProgressAt.map(Timestamps.fromMilliseconds)
                 return WorkflowAgent(
                     id: id,
@@ -150,7 +164,7 @@ public final class WorkflowScanner {
         )
     }
 
-    /// Workflow sem arquivo final: rodando (sessão viva) ou interrompido (sessão morta).
+    /// Workflow sem arquivo final, ou retomado depois dele: rodando ou pausado (sessão viva), ou interrompido (sessão morta).
     private func liveRun(
         at location: RunLocation,
         liveSession: ClaudeSession?,
@@ -159,6 +173,7 @@ public final class WorkflowScanner {
         let isAlive = liveSession != nil
         let journalAgents = JournalParser.agents(in: (try? Data(contentsOf: location.journal)) ?? Data())
         var transcriptCwd: String?
+        var usageLimitResets: [Date] = []
 
         let agents: [WorkflowAgent] = journalAgents.map { journalAgent in
             let url = location.transcript(agentId: journalAgent.id)
@@ -169,7 +184,11 @@ public final class WorkflowScanner {
             transcriptCwd = transcriptCwd ?? summary.cwd
 
             var state = journalAgent.state
-            if !isAlive, state == .running { state = .stopped }
+            if state == .running, let usageLimit = summary.usageLimit {
+                state = .paused
+                if let resetsAt = usageLimit.resetsAt { usageLimitResets.append(resetsAt) }
+            }
+            if !isAlive, state == .running || state == .paused { state = .stopped }
             let lastActivity = summary.lastTimestamp ?? FileInfo.modificationDate(of: url)
             return WorkflowAgent(
                 id: journalAgent.id,
@@ -195,12 +214,20 @@ public final class WorkflowScanner {
             description: script.meta?.description,
             projectName: projectName(at: location, liveSession: liveSession, transcriptCwd: transcriptCwd),
             sessionId: location.sessionId,
-            status: isAlive ? .running : .interrupted,
+            status: Self.liveStatus(isAlive: isAlive, agents: agents, usageLimitResets: usageLimitResets),
             startedAt: startedAt,
             endedAt: endedAt,
             phases: script.meta?.phases ?? [],
             agents: agents
         )
+    }
+
+    /// Pausado quando todos os agentes em andamento pararam no limite de uso, como no painel do Claude Code.
+    private static func liveStatus(isAlive: Bool, agents: [WorkflowAgent], usageLimitResets: [Date]) -> WorkflowStatus {
+        guard isAlive else { return .interrupted }
+        let pending = agents.filter { $0.state == .running || $0.state == .paused }
+        guard !pending.isEmpty, pending.allSatisfy({ $0.state == .paused }) else { return .running }
+        return .paused(resetsAt: usageLimitResets.max())
     }
 
     // MARK: - Script e projeto
@@ -259,13 +286,13 @@ public final class WorkflowScanner {
     // MARK: - Ordem e janela
 
     private func isRecent(_ run: WorkflowRun, now: Date) -> Bool {
-        guard run.status != .running, let endedAt = run.endedAt else { return true }
+        guard !run.status.isActive, let endedAt = run.endedAt else { return true }
         return now.timeIntervalSince(endedAt) <= recentWindow
     }
 
     private static func displayOrder(_ lhs: WorkflowRun, _ rhs: WorkflowRun) -> Bool {
-        let lhsRunning = lhs.status == .running
-        let rhsRunning = rhs.status == .running
+        let lhsRunning = lhs.status.isActive
+        let rhsRunning = rhs.status.isActive
         if lhsRunning != rhsRunning { return lhsRunning }
         let lhsDate = (lhsRunning ? lhs.startedAt : lhs.endedAt ?? lhs.startedAt) ?? .distantPast
         let rhsDate = (rhsRunning ? rhs.startedAt : rhs.endedAt ?? rhs.startedAt) ?? .distantPast

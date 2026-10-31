@@ -11,6 +11,8 @@ struct WorkflowStatusIcon: View {
             switch status {
             case .running:
                 ProgressView().controlSize(.mini)
+            case .paused:
+                Image(systemName: "pause.circle.fill").foregroundStyle(.orange)
             case .completed:
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
             case .stopped:
@@ -36,6 +38,8 @@ struct AgentStateIcon: View {
             switch state {
             case .running:
                 Image(systemName: "circle.fill").foregroundStyle(.blue).font(.system(size: 6))
+            case .paused:
+                Image(systemName: "pause.fill").foregroundStyle(.orange).font(.system(size: 7))
             case .done:
                 Image(systemName: "checkmark").foregroundStyle(.green)
             case .failed:
@@ -55,7 +59,7 @@ struct WorkflowSummaryLine: View {
     var includeStatus = false
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: run.status == .running ? 1 : 3600)) { context in
+        TimelineView(.periodic(from: .now, by: run.status.isActive ? 1 : 3600)) { context in
             Text(verbatim: parts(now: context.date).joined(separator: " · "))
                 .monospacedDigit()
                 .lineLimit(1)
@@ -77,6 +81,7 @@ extension WorkflowStatus {
     var title: String {
         switch self {
         case .running: String(localized: "Running")
+        case .paused: String(localized: "Paused")
         case .completed: String(localized: "Completed")
         case .stopped: String(localized: "Stopped")
         case .failed: String(localized: "Failed")

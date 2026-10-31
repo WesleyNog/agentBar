@@ -11,15 +11,23 @@ struct WorkflowListSection: View {
 
     var body: some View {
         let running = workflows.filter { $0.status == .running }.count
+        let paused = workflows.filter(\.status.isActive).count - running
+        let finished = workflows.count - running - paused
 
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
                 Text("Workflows")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text("\(running) running · \(workflows.count - running) finished (24h)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Group {
+                    if paused > 0 {
+                        Text("\(running) running · \(paused) paused · \(finished) finished (24h)")
+                    } else {
+                        Text("\(running) running · \(finished) finished (24h)")
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
             .padding(.horizontal, 14)
 

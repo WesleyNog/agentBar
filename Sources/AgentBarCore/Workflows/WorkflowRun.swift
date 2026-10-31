@@ -2,6 +2,8 @@ import Foundation
 
 public enum WorkflowStatus: Sendable, Equatable {
     case running
+    /// Todos os agentes em andamento pararam no limite de uso. `resetsAt` é quando o limite reseta.
+    case paused(resetsAt: Date?)
     case completed
     /// Parado pelo usuário (`killed` no arquivo final).
     case stopped
@@ -20,10 +22,20 @@ public enum WorkflowStatus: Sendable, Equatable {
         case nil: self = .other("")
         }
     }
+
+    /// Rodando ou pausado: o workflow ainda não terminou.
+    public var isActive: Bool {
+        switch self {
+        case .running, .paused: true
+        default: false
+        }
+    }
 }
 
 public enum AgentState: Sendable, Equatable {
     case running
+    /// Parou no limite de uso e espera o workflow ser retomado.
+    case paused
     case done
     case failed
     /// Não terminou porque o workflow acabou antes (parado ou interrompido).

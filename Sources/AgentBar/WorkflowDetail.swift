@@ -63,6 +63,17 @@ struct WorkflowDetailView: View {
                     .font(.caption)
                     .foregroundStyle(.orange)
             }
+            if case .paused(let resetsAt) = run.status {
+                Group {
+                    if let resetsAt, resetsAt > .now {
+                        Text("Paused at the usage limit. Resets \(ResetTime.format(resetsAt, now: .now)).")
+                    } else {
+                        Text("Paused at the usage limit.")
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.orange)
+            }
         }
     }
 

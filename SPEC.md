@@ -48,12 +48,19 @@ Fora do escopo da v1: custo em dólar, limite semanal por modelo, "What's contri
 | Nome, descrição e fases | `export const meta` em `<sessão>/workflows/scripts/<nome>-<runId>.js` | Formato interno |
 | Workflow concluído | Existência de `<sessão>/workflows/<runId>.json` | Formato interno |
 | Tokens, modelo e "idle" por agente | `agent-<id>.jsonl`: linhas `type: "assistant"` com `message.model` e `message.usage`; o mtime do arquivo dá o "idle" | Arquivos de 2–3 MB, então a leitura é incremental |
+| Agente parado pelo limite de uso | Última linha do `agent-<id>.jsonl` com `isApiErrorMessage: true` e `error: "rate_limit"`; o reset vem em `apiErrorParams.rate_limit_info.resetsAt` (epoch em segundos) | Formato interno |
 
 Status de um workflow:
 
 - **Rodando:** não existe o `<runId>.json` final e a sessão dona está viva.
+- **Pausado:** como rodando, mas todos os agentes em andamento pararam no limite de uso. O Claude Code mostra "paused · usage limit resets at …".
 - **Concluído:** o `<runId>.json` existe.
 - **Interrompido:** não existe o `.json` final e a sessão dona morreu.
+
+Retomada: para retomar um workflow pausado, o Claude Code encerra a execução (grava o `<runId>.json` com `status: killed`, e os agentes sem `agentId`) e começa os passos que faltam no mesmo `runId`. Os passos novos entram no mesmo `journal.jsonl`, com a mesma `key` dos que não terminaram. Por isso:
+
+- Um `journal.jsonl` mais novo que o `<runId>.json` quer dizer que o workflow foi retomado, e ele volta a ser rodando.
+- Um `started` com a `key` de um agente que não terminou substitui esse agente.
 
 ## Integração com o status line
 
@@ -221,7 +228,7 @@ struct RateLimitWindow: Codable, Sendable, Equatable {
 3. Um workflow novo aparece no popover em até 5 s depois de começar e passa para concluído em até 5 s depois de terminar.
 4. Cada workflow mostra nome, projeto, tempo, agentes concluídos/total e tokens. Os tokens ficam a no máximo 2% do valor do painel do Claude Code.
 5. Cada agente mostra rótulo, fase, modelo, tokens, tempo e status (rodando, concluído ou idle).
-6. Um workflow de sessão fechada aparece como "interrompido", e não como "rodando" para sempre.
+6. Um workflow de sessão fechada aparece como "interrompido", e não como "rodando" para sempre. Um workflow parado pelo limite de uso aparece como "pausado", e volta a "rodando" quando é retomado.
 7. Conectar e desconectar preservam o status line anterior: o seu `5h:27% | 7d:45%` continua aparecendo.
 8. Em repouso, com 10 workflows na lista: CPU média abaixo de 1% e memória abaixo de 80 MB.
 9. Nenhuma chamada de rede (dá para verificar com `nettop` ou Little Snitch).

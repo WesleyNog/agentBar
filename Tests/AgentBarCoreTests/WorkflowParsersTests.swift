@@ -87,6 +87,25 @@ struct JournalParserTests {
     @Test func journalVazio() {
         #expect(JournalParser.agents(in: Data()).isEmpty)
     }
+
+    /// Ao retomar, o Claude Code começa de novo, com a mesma `key`, os passos que não terminaram.
+    @Test func retomadaSubstituiOAgenteQueNaoTerminou() {
+        let journal = """
+        {"type":"launched"}
+        {"type":"started","key":"v2:1","agentId":"a1","label":"T1","phase":"Aplicar"}
+        {"type":"started","key":"v2:2","agentId":"a2","label":"T2","phase":"Aplicar"}
+        {"type":"result","key":"v2:1","agentId":"a1"}
+        {"type":"started","key":"v2:2","agentId":"b2","label":"T2","phase":"Aplicar"}
+        {"type":"failed","key":"v2:2","agentId":"a2"}
+        {"type":"started","key":"v2:1","agentId":"c1","label":"T1","phase":"Aplicar"}
+        """
+
+        #expect(JournalParser.agents(in: Data(journal.utf8)) == [
+            JournalAgent(id: "a1", label: "T1", phase: "Aplicar", state: .done),
+            JournalAgent(id: "b2", label: "T2", phase: "Aplicar", state: .running),
+            JournalAgent(id: "c1", label: "T1", phase: "Aplicar", state: .running),
+        ])
+    }
 }
 
 @Suite("IncrementalLineReader")
@@ -166,6 +185,33 @@ struct AgentTranscriptTests {
         #expect(summary.contextTokens == 13_003)
         #expect(summary.firstTimestamp == Timestamps.parseISO8601("2026-10-30T01:00:00.000Z"))
     }
+
+    @Test func paradoNoLimiteDeUsoAteAProximaLinha() throws {
+        let dir = try TempDirectory()
+        defer { dir.remove() }
+        let url = try dir.write(
+            [
+                FakeTranscript.assistant(at: "2026-10-30T01:00:05.000Z", model: "claude-opus-5-5", input: 2, cacheCreation: 1_000, cacheRead: 10_000, output: 500),
+                FakeTranscript.apiRequest(at: "2026-10-30T01:00:06.000Z"),
+                FakeTranscript.usageLimit(at: "2026-10-30T01:00:07.000Z", resetsAt: 1_793_466_600),
+            ].joined(separator: "\n") + "\n",
+            to: "agent-a1.jsonl"
+        )
+        let reader = AgentTranscriptReader(url: url)
+
+        var summary = reader.refresh()
+        #expect(summary.usageLimit == UsageLimitStop(resetsAt: Date(timeIntervalSince1970: 1_793_466_600)))
+        #expect(summary.model == "claude-opus-5-5")
+        #expect(summary.contextTokens == 11_002)
+
+        let handle = try FileHandle(forWritingTo: url)
+        try handle.seekToEnd()
+        try handle.write(contentsOf: Data((FakeTranscript.apiRequest(at: "2026-10-30T01:05:00.000Z") + "\n").utf8))
+        try handle.close()
+
+        summary = reader.refresh()
+        #expect(summary.usageLimit == nil)
+    }
 }
 
 /// Linhas sintéticas no formato dos transcripts do Claude Code.
@@ -176,5 +222,14 @@ enum FakeTranscript {
 
     static func assistant(at timestamp: String, model: String, input: Int, cacheCreation: Int, cacheRead: Int, output: Int) -> String {
         #"{"type":"assistant","timestamp":"\#(timestamp)","cwd":"/x","message":{"id":"msg_\#(timestamp)","model":"\#(model)","content":[{"type":"text","text":"ok"}],"usage":{"input_tokens":\#(input),"cache_creation_input_tokens":\#(cacheCreation),"cache_read_input_tokens":\#(cacheRead),"output_tokens":\#(output)}}}"#
+    }
+
+    static func apiRequest(at timestamp: String) -> String {
+        #"{"type":"api-request","timestamp":"\#(timestamp)","cwd":"/x"}"#
+    }
+
+    /// A resposta sintética que o Claude Code grava quando o limite de uso estoura.
+    static func usageLimit(at timestamp: String, resetsAt: Int) -> String {
+        #"{"type":"assistant","timestamp":"\#(timestamp)","cwd":"/x","isApiErrorMessage":true,"error":"rate_limit","apiError":"usage_limit_reached","apiErrorStatus":429,"apiErrorParams":{"rate_limit_info":{"status":"rejected","resetsAt":\#(resetsAt),"rateLimitType":"five_hour"}},"quotaLimits":{"status":"rejected","resetsAt":\#(resetsAt),"rateLimitType":"five_hour"},"message":{"id":"msg_x","model":"<synthetic>","content":[{"type":"text","text":"You've hit your 5-hour limit"}],"usage":{"input_tokens":0,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":0}}}"#
     }
 }

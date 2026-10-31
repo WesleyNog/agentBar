@@ -86,6 +86,7 @@ func windowLine(_ title: String, _ window: RateLimitWindow?) -> String {
 func statusSymbol(_ status: WorkflowStatus) -> String {
     switch status {
     case .running: "●"
+    case .paused: "⏸"
     case .completed: "✓"
     case .stopped: "■"
     case .failed: "✗"
@@ -97,6 +98,8 @@ func statusSymbol(_ status: WorkflowStatus) -> String {
 func statusText(_ status: WorkflowStatus) -> String {
     switch status {
     case .running: "rodando"
+    case .paused(let resetsAt?): "pausado no limite de uso (reseta \(dateText(resetsAt)))"
+    case .paused(nil): "pausado no limite de uso"
     case .completed: "concluído"
     case .stopped: "parado"
     case .failed: "falhou"
@@ -108,6 +111,7 @@ func statusText(_ status: WorkflowStatus) -> String {
 func agentText(_ agent: WorkflowAgent) -> String {
     let symbol = switch agent.state {
     case .running: "●"
+    case .paused: "⏸"
     case .done: "✓"
     case .failed: "✗"
     case .stopped: "■"
@@ -150,7 +154,8 @@ func printText() {
     }
 
     let running = runs.filter { $0.status == .running }.count
-    print("\nWorkflows (\(Int(options.hours))h): \(running) rodando · \(runs.count - running) terminados")
+    let paused = runs.filter { $0.status.isActive }.count - running
+    print("\nWorkflows (\(Int(options.hours))h): \(running) rodando · \(paused) pausados · \(runs.count - running - paused) terminados")
     for run in runs {
         var details: [String] = []
         if let project = run.projectName { details.append(project) }

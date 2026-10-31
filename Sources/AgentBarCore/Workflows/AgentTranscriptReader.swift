@@ -9,8 +9,20 @@ public struct AgentTranscriptSummary: Sendable, Equatable {
     public var firstTimestamp: Date?
     public var lastTimestamp: Date?
     public var cwd: String?
+    /// Preenchido quando a última linha é o erro de limite de uso: o agente parou ali.
+    public var usageLimit: UsageLimitStop?
 
     public init() {}
+}
+
+/// Agente parado porque o limite de uso estourou.
+public struct UsageLimitStop: Sendable, Equatable {
+    /// Quando o limite reseta, se o Claude Code informou.
+    public var resetsAt: Date?
+
+    public init(resetsAt: Date?) {
+        self.resetsAt = resetsAt
+    }
 }
 
 /// Mantém o resumo de um transcript em dia, lendo só as linhas novas a cada `refresh()`.
@@ -40,6 +52,13 @@ final class AgentTranscriptReader {
         }
         if summary.cwd == nil, let cwd = entry.cwd { summary.cwd = cwd }
 
+        // Resposta sintética do Claude Code quando o limite estoura. Qualquer linha depois dela quer dizer que o agente seguiu.
+        if entry.isApiErrorMessage == true, entry.error == "rate_limit" {
+            summary.usageLimit = UsageLimitStop(resetsAt: entry.resetsAt.map { Date(timeIntervalSince1970: $0) })
+            return
+        }
+        summary.usageLimit = nil
+
         // Respostas sintéticas (`<synthetic>`) não vêm da API e trazem uso zerado.
         guard entry.type == "assistant", let message = entry.message,
               let model = message.model, !model.hasPrefix("<")
@@ -55,8 +74,14 @@ final class AgentTranscriptReader {
         let timestamp: String?
         let cwd: String?
         let message: Message?
+        let isApiErrorMessage: Bool?
+        let error: String?
+        /// Epoch em segundos, de `apiErrorParams.rate_limit_info` ou, na falta dele, de `quotaLimits`.
+        let resetsAt: Double?
 
-        enum CodingKeys: String, CodingKey { case type, timestamp, cwd, message }
+        enum CodingKeys: String, CodingKey {
+            case type, timestamp, cwd, message, isApiErrorMessage, error, apiErrorParams, quotaLimits
+        }
 
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -64,6 +89,30 @@ final class AgentTranscriptReader {
             timestamp = container.lenient(.timestamp)
             cwd = container.lenient(.cwd)
             message = container.lenient(.message)
+            isApiErrorMessage = container.lenient(.isApiErrorMessage)
+            error = container.lenient(.error)
+            resetsAt = container.lenient(.apiErrorParams, as: ErrorParams.self)?.rateLimitInfo?.resetsAt
+                ?? container.lenient(.quotaLimits, as: RateLimitInfo.self)?.resetsAt
+        }
+    }
+
+    private struct ErrorParams: Decodable {
+        let rateLimitInfo: RateLimitInfo?
+
+        enum CodingKeys: String, CodingKey { case rateLimitInfo = "rate_limit_info" }
+
+        init(from decoder: any Decoder) throws {
+            rateLimitInfo = try decoder.container(keyedBy: CodingKeys.self).lenient(.rateLimitInfo)
+        }
+    }
+
+    private struct RateLimitInfo: Decodable {
+        let resetsAt: Double?
+
+        enum CodingKeys: String, CodingKey { case resetsAt }
+
+        init(from decoder: any Decoder) throws {
+            resetsAt = try decoder.container(keyedBy: CodingKeys.self).lenient(.resetsAt)
         }
     }
 

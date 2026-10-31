@@ -11,6 +11,16 @@
         }
       }
     },
+    "%lld running · %lld paused · %lld finished (24h)": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld rodando · %2$lld pausados · %3$lld terminados (24h)"
+          }
+        }
+      }
+    },
     "%lld/%lld agents": {
       "localizations": {
         "pt-BR": {
@@ -387,6 +397,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abrir ao iniciar o Mac"
+          }
+        }
+      }
+    },
+    "Paused": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausado"
+          }
+        }
+      }
+    },
+    "Paused at the usage limit.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausado no limite de uso."
+          }
+        }
+      }
+    },
+    "Paused at the usage limit. Resets %@.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausado no limite de uso. Reseta %@."
           }
         }
       }

@@ -28,30 +28,35 @@ struct FinalWorkflowFile: Decodable {
     /// Item de `workflowProgress`: uma fase (`workflow_phase`) ou um agente (`workflow_agent`).
     struct Progress: Decodable {
         let type: String?
+        /// Falta nos agentes que não começaram de fato, como num workflow encerrado para ser retomado.
         let agentId: String?
+        let index: Int?
         let label: String?
         let phaseTitle: String?
         let model: String?
         let state: String?
         let tokens: Int?
         let startedAt: Double?
+        let queuedAt: Double?
         let durationMs: Double?
         let lastProgressAt: Double?
 
         enum CodingKeys: String, CodingKey {
-            case type, agentId, label, phaseTitle, model, state, tokens, startedAt, durationMs, lastProgressAt
+            case type, agentId, index, label, phaseTitle, model, state, tokens, startedAt, queuedAt, durationMs, lastProgressAt
         }
 
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             type = container.lenient(.type)
             agentId = container.lenient(.agentId)
+            index = container.lenient(.index)
             label = container.lenient(.label)
             phaseTitle = container.lenient(.phaseTitle)
             model = container.lenient(.model)
             state = container.lenient(.state)
             tokens = container.lenient(.tokens)
             startedAt = container.lenient(.startedAt)
+            queuedAt = container.lenient(.queuedAt)
             durationMs = container.lenient(.durationMs)
             lastProgressAt = container.lenient(.lastProgressAt)
         }
